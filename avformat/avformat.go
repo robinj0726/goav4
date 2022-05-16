@@ -13,6 +13,8 @@ import (
 	"errors"
 	"fmt"
 	"unsafe"
+
+	"github.com/robinj730/goav4/avcodec"
 )
 
 func Version() uint {
@@ -57,13 +59,16 @@ func (c *AVFormatContext) DumpFormat() {
 	C.av_dump_format((*C.struct_AVFormatContext)(c.ctx), 0, C.CString(""), 0)
 }
 
-func (c *AVFormatContext) AVStreams() <-chan *C.struct_AVCodecParameters {
-	ch := make(chan *C.struct_AVCodecParameters)
+func (c *AVFormatContext) AVStreams() <-chan avcodec.AVCodecParameters {
+	ch := make(chan avcodec.AVCodecParameters)
 
 	go func() {
 		for i := 0; i < int(c.ctx.nb_streams); i++ {
 			codecpar := C.getCodecParameters(c.ctx, (C.int)(i))
-			ch <- codecpar
+			ch <- avcodec.AVCodecParameters{
+				CodecType: int(codecpar.codec_type),
+				CodecID:   int(codecpar.codec_id),
+			}
 		}
 		close(ch)
 	}()
