@@ -3,6 +3,10 @@ package avformat
 /*
 #cgo pkg-config: libavformat libavcodec libavutil
 #include <libavformat/avformat.h>
+
+AVCodecParameters* getCodecParameters(AVFormatContext* fmt_ctx, int index) {
+    return fmt_ctx->streams[index]->codecpar;
+}
 */
 import "C"
 import (
@@ -10,6 +14,10 @@ import (
 	"fmt"
 	"unsafe"
 )
+
+func Version() uint {
+	return uint(C.avformat_version())
+}
 
 type AVFormatContext struct {
 	ctx *C.struct_AVFormatContext
@@ -49,6 +57,16 @@ func (c *AVFormatContext) DumpFormat() {
 	C.av_dump_format((*C.struct_AVFormatContext)(c.ctx), 0, C.CString(""), 0)
 }
 
-func Version() uint {
-	return uint(C.avformat_version())
+func (c *AVFormatContext) AVStreams() <-chan *C.struct_AVCodecParameters {
+	ch := make(chan *C.struct_AVCodecParameters)
+
+	go func() {
+		for i := 0; i < int(c.ctx.nb_streams); i++ {
+			codecpar := C.getCodecParameters(c.ctx, (C.int)(i))
+			ch <- codecpar
+		}
+		close(ch)
+	}()
+
+	return ch
 }
