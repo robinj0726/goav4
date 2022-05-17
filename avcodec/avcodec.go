@@ -7,6 +7,7 @@ package avcodec
 import "C"
 import (
 	"errors"
+	"fmt"
 	"unsafe"
 )
 
@@ -25,10 +26,18 @@ func AllocContext3(codec *AVCodec) (*AVCodecContext, error) {
 
 }
 
+func (avctx AVCodecContext) String() string {
+	return fmt.Sprintf("aa %#v", *(avctx.cptr))
+}
+
 func (avctx *AVCodecContext) Open2(codec *AVCodec) error {
 	ret := C.avcodec_open2((*C.struct_AVCodecContext)(avctx.cptr), (*C.struct_AVCodec)(codec.cptr), (**C.struct_AVDictionary)(unsafe.Pointer(uintptr(0))))
 	if int(ret) < 0 {
 		return errors.New("Could not open codec")
 	}
 	return nil
+}
+
+func (avctx *AVCodecContext) ParametersToContext(par unsafe.Pointer) {
+	C.avcodec_parameters_to_context(avctx.cptr, (*C.struct_AVCodecParameters)(par))
 }
