@@ -7,5 +7,5 @@ package avcodec
 import "C"
 
 type AVCodecContext struct {
-	ctx *C.struct_AVCodecContext
+	cptr *C.struct_AVCodecContext
 }

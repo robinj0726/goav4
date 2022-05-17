@@ -15,6 +15,7 @@ import (
 	"unsafe"
 
 	"github.com/robinj730/goav4/avcodec"
+	"github.com/robinj730/goav4/avutil"
 )
 
 func Version() uint {
@@ -22,21 +23,21 @@ func Version() uint {
 }
 
 type AVFormatContext struct {
-	ctx *C.struct_AVFormatContext
+	cptr *C.struct_AVFormatContext
 }
 
 func AllocContext() *AVFormatContext {
 	return &AVFormatContext{
-		ctx: (*C.struct_AVFormatContext)(C.avformat_alloc_context()),
+		cptr: (*C.struct_AVFormatContext)(C.avformat_alloc_context()),
 	}
 }
 
 func (c *AVFormatContext) FreeContext() {
-	C.avformat_free_context((*C.struct_AVFormatContext)(unsafe.Pointer(c.ctx)))
+	C.avformat_free_context((*C.struct_AVFormatContext)(unsafe.Pointer(c.cptr)))
 }
 
 func (c *AVFormatContext) OpenInput(url string) error {
-	ret := (int)(C.avformat_open_input((**C.struct_AVFormatContext)(&c.ctx), C.CString(url), (*C.struct_AVInputFormat)(unsafe.Pointer(uintptr(0))), (**C.struct_AVDictionary)(unsafe.Pointer(uintptr(0)))))
+	ret := (int)(C.avformat_open_input((**C.struct_AVFormatContext)(&c.cptr), C.CString(url), (*C.struct_AVInputFormat)(unsafe.Pointer(uintptr(0))), (**C.struct_AVDictionary)(unsafe.Pointer(uintptr(0)))))
 	if ret < 0 {
 		return fmt.Errorf("Could not open source file %s", url)
 	}
@@ -44,11 +45,11 @@ func (c *AVFormatContext) OpenInput(url string) error {
 }
 
 func (c *AVFormatContext) CloseInput() {
-	C.avformat_close_input((**C.struct_AVFormatContext)(&c.ctx))
+	C.avformat_close_input((**C.struct_AVFormatContext)(&c.cptr))
 }
 
 func (c *AVFormatContext) FindStreamInfo() error {
-	ret := (int)(C.avformat_find_stream_info((*C.struct_AVFormatContext)(c.ctx), (**C.struct_AVDictionary)(unsafe.Pointer(uintptr(0)))))
+	ret := (int)(C.avformat_find_stream_info((*C.struct_AVFormatContext)(c.cptr), (**C.struct_AVDictionary)(unsafe.Pointer(uintptr(0)))))
 	if ret < 0 {
 		return errors.New("Could not find stream information")
 	}
@@ -56,17 +57,17 @@ func (c *AVFormatContext) FindStreamInfo() error {
 }
 
 func (c *AVFormatContext) DumpFormat() {
-	C.av_dump_format((*C.struct_AVFormatContext)(c.ctx), 0, C.CString(""), 0)
+	C.av_dump_format((*C.struct_AVFormatContext)(c.cptr), 0, C.CString(""), 0)
 }
 
 func (c *AVFormatContext) AVStreams() <-chan avcodec.AVCodecParameters {
 	ch := make(chan avcodec.AVCodecParameters)
 
 	go func() {
-		for i := 0; i < int(c.ctx.nb_streams); i++ {
-			codecpar := C.getCodecParameters(c.ctx, (C.int)(i))
+		for i := 0; i < int(c.cptr.nb_streams); i++ {
+			codecpar := C.getCodecParameters(c.cptr, (C.int)(i))
 			ch <- avcodec.AVCodecParameters{
-				CodecType: int(codecpar.codec_type),
+				CodecType: avutil.AVMediaType(codecpar.codec_type),
 				CodecID:   int(codecpar.codec_id),
 			}
 		}
