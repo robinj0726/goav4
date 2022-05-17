@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/robinj730/goav4/avcodec"
 	"github.com/robinj730/goav4/avformat"
 	"github.com/robinj730/goav4/avutil"
 )
@@ -16,9 +17,9 @@ func main() {
 	fmt_ctx.FindStreamInfo()
 
 	for codecpar := range fmt_ctx.AVStreams() {
-		fmt.Printf("%#v\n", codecpar)
 		if codecpar.CodecType == avutil.AVMEDIA_TYPE_VIDEO {
-
+			codec, _ := avcodec.FindDecoder(codecpar.CodecID)
+			fmt.Printf("%#v\n", codec)
 		}
 	}
 
