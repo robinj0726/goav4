@@ -1,6 +1,8 @@
 package avcodec
 
+import "github.com/robinj730/goav4/avutil"
+
 type AVCodecParameters struct {
-	CodecType int
+	CodecType avutil.AVMediaType
 	CodecID   int
 }
