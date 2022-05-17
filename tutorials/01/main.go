@@ -19,7 +19,9 @@ func main() {
 	for codecpar := range fmt_ctx.AVStreams() {
 		if codecpar.CodecType == avutil.AVMEDIA_TYPE_VIDEO {
 			codec, _ := avcodec.FindDecoder(codecpar.CodecID)
-			fmt.Printf("%#v\n", codec)
+			avctx, _ := avcodec.AllocContext3(codec)
+			fmt.Printf("%#v\n", avctx)
+			avctx.Open2(codec)
 		}
 	}
 
