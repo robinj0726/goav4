@@ -4,8 +4,8 @@ package avformat
 #cgo pkg-config: libavformat libavcodec libavutil
 #include <libavformat/avformat.h>
 
-AVCodecParameters* getCodecParameters(AVFormatContext* fmt_ctx, int index) {
-    return fmt_ctx->streams[index]->codecpar;
+AVStream* av_get_stream(AVFormatContext* fmt_ctx, int index) {
+    return fmt_ctx->streams[index];
 }
 */
 import "C"
@@ -13,9 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"unsafe"
-
-	"github.com/robinj730/goav4/avcodec"
-	"github.com/robinj730/goav4/avutil"
 )
 
 func Version() uint {
@@ -60,15 +57,13 @@ func (c *AVFormatContext) DumpFormat() {
 	C.av_dump_format((*C.struct_AVFormatContext)(c.cptr), 0, C.CString(""), 0)
 }
 
-func (c *AVFormatContext) AVStreams() <-chan avcodec.AVCodecParameters {
-	ch := make(chan avcodec.AVCodecParameters)
+func (c *AVFormatContext) AVStreams() <-chan AVStream {
+	ch := make(chan AVStream)
 
 	go func() {
 		for i := 0; i < int(c.cptr.nb_streams); i++ {
-			codecpar := C.getCodecParameters(c.cptr, (C.int)(i))
-			ch <- avcodec.AVCodecParameters{
-				CodecType: avutil.AVMediaType(codecpar.codec_type),
-				CodecID:   int(codecpar.codec_id),
+			ch <- AVStream{
+				cptr: C.av_get_stream(c.cptr, (C.int)(i)),
 			}
 		}
 		close(ch)
