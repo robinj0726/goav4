@@ -70,7 +70,17 @@ func main() {
 		}
 
 		if pkt.StreamIndex() == videoStream {
-			fmt.Println(pkt)
+			err := pCodecCtx.SendPacket(pkt.PacketRef())
+			if err != nil {
+				panic(err)
+			}
+
+			err = pCodecCtx.ReceiveFrame(pFrame.FrameRef())
+			if err != nil {
+				panic(err)
+			}
+
+			fmt.Println(pFrame)
 		}
 
 	}

@@ -53,3 +53,21 @@ func (ctx *AVCodecContext) Height() int {
 func (ctx *AVCodecContext) PixFmt() int {
 	return int(ctx.cptr.pix_fmt)
 }
+
+func (ctx *AVCodecContext) SendPacket(pktref unsafe.Pointer) error {
+	ret := C.avcodec_send_packet(ctx.cptr, (*C.struct_AVPacket)(pktref))
+	if ret < 0 {
+		return errors.New("send packet to codec error")
+	}
+
+	return nil
+}
+
+func (ctx *AVCodecContext) ReceiveFrame(frameref unsafe.Pointer) error {
+	ret := C.avcodec_receive_frame(ctx.cptr, (*C.struct_AVFrame)(frameref))
+	if ret < 0 {
+		return errors.New("receive frame from codec error")
+	}
+
+	return nil
+}
