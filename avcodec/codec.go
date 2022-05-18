@@ -6,19 +6,12 @@ package avcodec
 import "C"
 import (
 	"errors"
+	"fmt"
 	"unsafe"
-
-	"github.com/robinj730/goav4/avutil"
 )
-
-type AVCodecParameters struct {
-	CodecType avutil.AVMediaType
-	CodecID   int
-}
 
 type AVCodec struct {
 	cptr *C.struct_AVCodec
-	AVCodecParameters
 }
 
 func FindDecoder(codecId int) (*AVCodec, error) {
@@ -29,4 +22,16 @@ func FindDecoder(codecId int) (*AVCodec, error) {
 	return &AVCodec{
 		cptr: ret,
 	}, nil
+}
+
+func (a AVCodec) String() string {
+	return fmt.Sprintf("%#v", *(a.cptr))
+}
+
+func (a AVCodec) Name() string {
+	return fmt.Sprintf("%s", C.GoString(a.cptr.name))
+}
+
+func (a AVCodec) LongName() string {
+	return fmt.Sprintf("%s", C.GoString(a.cptr.long_name))
 }
