@@ -8,6 +8,8 @@ import "C"
 import (
 	"errors"
 	"unsafe"
+
+	"github.com/robinj730/goav4/avutil"
 )
 
 const (
@@ -33,4 +35,8 @@ func GetContext(srcW int, srcH int, srcFormat int,
 	return &SwsContext{
 		cptr: ret,
 	}, nil
+}
+
+func (sws *SwsContext) Scale(srcFrame avutil.AVFrame, srcSliceY int, srcSliceH int, dstFrame avutil.AVFrame) {
+	C.sws_scale((*C.struct_SwsContext)(sws.cptr), (**C.uchar)(srcFrame.Data()), (*C.int)(srcFrame.LineSize()), (C.int)(srcSliceY), (C.int)(srcSliceH), (**C.uchar)(dstFrame.Data()), (*C.int)(dstFrame.LineSize()))
 }

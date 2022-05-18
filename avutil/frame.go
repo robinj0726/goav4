@@ -30,3 +30,11 @@ func (f *AVFrame) Free() {
 func (f *AVFrame) FrameRef() unsafe.Pointer {
 	return unsafe.Pointer(f.cptr)
 }
+
+func (f *AVFrame) Data() unsafe.Pointer {
+	return unsafe.Pointer(&f.cptr.data[0])
+}
+
+func (f *AVFrame) LineSize() unsafe.Pointer {
+	return unsafe.Pointer(&f.cptr.linesize[0])
+}
