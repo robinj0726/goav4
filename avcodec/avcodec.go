@@ -49,3 +49,7 @@ func (ctx *AVCodecContext) Width() int {
 func (ctx *AVCodecContext) Height() int {
 	return int(ctx.cptr.height)
 }
+
+func (ctx *AVCodecContext) PixFmt() int {
+	return int(ctx.cptr.pix_fmt)
+}

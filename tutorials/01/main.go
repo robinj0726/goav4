@@ -2,21 +2,23 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/robinj730/goav4/avcodec"
 	"github.com/robinj730/goav4/avformat"
 	"github.com/robinj730/goav4/avutil"
+	"github.com/robinj730/goav4/swscale"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Please provide a movie file")
-		return
-	}
+	// if len(os.Args) < 2 {
+	// 	fmt.Println("Please provide a movie file")
+	// 	return
+	// }
+
+	infile := "../sample.mp4"
 
 	pFormatCtx := avformat.AVFormatContext{}
-	pFormatCtx.OpenInput(os.Args[1])
+	pFormatCtx.OpenInput(infile)
 	defer pFormatCtx.CloseInput()
 
 	pFormatCtx.FindStreamInfo()
@@ -28,7 +30,6 @@ func main() {
 			pCodec, _ = avcodec.FindDecoder(stream.CodecID())
 			pCodecCtx, _ = avcodec.AllocContext3(pCodec)
 			pCodecCtx.ParametersToContext(stream.CodecParameters())
-			fmt.Println(pCodecCtx)
 		}
 	}
 	err := pCodecCtx.Open2(pCodec)
@@ -47,4 +48,9 @@ func main() {
 	defer avutil.Free(buffer)
 
 	avutil.FillImageArrays(pFrameRGB, buffer, int(avutil.AV_PIX_FMT_RGB24), pCodecCtx.Width(), pCodecCtx.Height(), 16)
+
+	// fmt.Println(pCodecCtx)
+	sws_ctx, _ := swscale.GetContext(pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), pCodecCtx.Width(), pCodecCtx.Height(), int(avutil.AV_PIX_FMT_RGB24), swscale.SWS_BILINEAR)
+
+	fmt.Printf("%#v\n", sws_ctx)
 }
