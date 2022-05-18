@@ -6,7 +6,6 @@ import (
 	"github.com/robinj730/goav4/avcodec"
 	"github.com/robinj730/goav4/avformat"
 	"github.com/robinj730/goav4/avutil"
-	"github.com/robinj730/goav4/swscale"
 )
 
 func main() {
@@ -50,7 +49,18 @@ func main() {
 	avutil.FillImageArrays(pFrameRGB, buffer, int(avutil.AV_PIX_FMT_RGB24), pCodecCtx.Width(), pCodecCtx.Height(), 16)
 
 	// fmt.Println(pCodecCtx)
-	sws_ctx, _ := swscale.GetContext(pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), pCodecCtx.Width(), pCodecCtx.Height(), int(avutil.AV_PIX_FMT_RGB24), swscale.SWS_BILINEAR)
+	// sws_ctx, _ := swscale.GetContext(pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), pCodecCtx.Width(), pCodecCtx.Height(), int(avutil.AV_PIX_FMT_RGB24), swscale.SWS_BILINEAR)
 
-	fmt.Printf("%#v\n", sws_ctx)
+	pkt := avcodec.PacketAlloc()
+	defer pkt.Free()
+
+	for {
+		err := pFormatCtx.ReadFrame(pkt.PacketRef())
+		if err != nil {
+			break
+		}
+
+		fmt.Println(pkt)
+
+	}
 }
