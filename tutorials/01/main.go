@@ -7,6 +7,7 @@ import (
 	"github.com/robinj730/goav4/avcodec"
 	"github.com/robinj730/goav4/avformat"
 	"github.com/robinj730/goav4/avutil"
+	"github.com/robinj730/goav4/avutil/avimage"
 )
 
 func main() {
@@ -36,4 +37,13 @@ func main() {
 		panic(err)
 	}
 
+	pFrame := avutil.FrameAlloc()
+	defer pFrame.Free()
+
+	pFrameRGB := avutil.FrameAlloc()
+	defer pFrameRGB.Free()
+
+	numBytes := avimage.GetBufferSize(int(avutil.AV_PIX_FMT_RGB24), pCodecCtx.Width(), pCodecCtx.Height(), 16)
+	buffer := avutil.Malloc(numBytes)
+	defer avutil.Free(buffer)
 }
