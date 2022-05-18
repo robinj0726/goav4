@@ -7,7 +7,6 @@ package swscale
 import "C"
 import (
 	"errors"
-	"fmt"
 	"unsafe"
 )
 
@@ -34,8 +33,4 @@ func GetContext(srcW int, srcH int, srcFormat int,
 	return &SwsContext{
 		cptr: ret,
 	}, nil
-}
-
-func (sws SwsContext) String() string {
-	return fmt.Sprintf("%#v", *(sws.cptr))
 }
