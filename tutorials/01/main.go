@@ -24,13 +24,22 @@ func main() {
 
 	var pCodec *avcodec.AVCodec
 	var pCodecCtx *avcodec.AVCodecContext
+	videoStream := -1
+	i := 0
 	for stream := range pFormatCtx.AVStreams() {
 		if stream.CodecType() == avutil.AVMEDIA_TYPE_VIDEO {
 			pCodec, _ = avcodec.FindDecoder(stream.CodecID())
 			pCodecCtx, _ = avcodec.AllocContext3(pCodec)
 			pCodecCtx.ParametersToContext(stream.CodecParameters())
+			videoStream = i
+			i += 1
 		}
 	}
+
+	if videoStream == -1 {
+		panic("no video stream inside")
+	}
+
 	err := pCodecCtx.Open2(pCodec)
 	if err != nil {
 		panic(err)
@@ -60,7 +69,9 @@ func main() {
 			break
 		}
 
-		fmt.Println(pkt)
+		if pkt.StreamIndex() == videoStream {
+			fmt.Println(pkt)
+		}
 
 	}
 }
