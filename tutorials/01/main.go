@@ -15,22 +15,25 @@ func main() {
 		return
 	}
 
-	fmt_ctx := avformat.AVFormatContext{}
-	fmt_ctx.OpenInput(os.Args[1])
-	defer fmt_ctx.CloseInput()
+	pFormatCtx := avformat.AVFormatContext{}
+	pFormatCtx.OpenInput(os.Args[1])
+	defer pFormatCtx.CloseInput()
 
-	fmt_ctx.FindStreamInfo()
+	pFormatCtx.FindStreamInfo()
 
-	var codec *avcodec.AVCodec
-	var avctx *avcodec.AVCodecContext
-	for stream := range fmt_ctx.AVStreams() {
+	var pCodec *avcodec.AVCodec
+	var pCodecCtx *avcodec.AVCodecContext
+	for stream := range pFormatCtx.AVStreams() {
 		if stream.CodecType() == avutil.AVMEDIA_TYPE_VIDEO {
-			codec, _ = avcodec.FindDecoder(stream.CodecID())
-			avctx, _ = avcodec.AllocContext3(codec)
-			avctx.ParametersToContext(stream.CodecParameters())
-			fmt.Println(avctx)
+			pCodec, _ = avcodec.FindDecoder(stream.CodecID())
+			pCodecCtx, _ = avcodec.AllocContext3(pCodec)
+			pCodecCtx.ParametersToContext(stream.CodecParameters())
+			fmt.Println(pCodecCtx)
 		}
 	}
-	avctx.Open2(codec)
+	err := pCodecCtx.Open2(pCodec)
+	if err != nil {
+		panic(err)
+	}
 
 }
