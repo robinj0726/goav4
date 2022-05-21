@@ -35,8 +35,9 @@ func main() {
 			pCodecCtx, _ = avcodec.AllocContext3(pCodec)
 			pCodecCtx.ParametersToContext(stream.CodecParameters())
 			videoStream = i
-			i += 1
+			break
 		}
+		i += 1
 	}
 
 	if videoStream == -1 {
