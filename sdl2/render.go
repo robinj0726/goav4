@@ -2,6 +2,12 @@ package sdl2
 
 /*
 #include <SDL.h>
+
+static inline int RenderCopy(SDL_Renderer *renderer, SDL_Texture *texture, SDL_Rect *src, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+	SDL_Rect dst = {dst_x, dst_y, dst_w, dst_h};
+	return SDL_RenderCopy(renderer, texture, src, &dst);
+}
 */
 import "C"
 import "unsafe"
@@ -67,4 +73,53 @@ func (texture *Texture) Destroy() error {
 	}
 	SetError(lastErr)
 	return nil
+}
+
+func (renderer *Renderer) Clear() error {
+	return errorFromInt(int(
+		C.SDL_RenderClear(renderer.cptr())))
+}
+
+func (renderer *Renderer) Copy(texture *Texture, src, dst *Rect) error {
+	if dst == nil {
+		return errorFromInt(int(
+			C.SDL_RenderCopy(
+				renderer.cptr(),
+				texture.cptr(),
+				src.cptr(),
+				dst.cptr())))
+	}
+	return errorFromInt(int(
+		C.RenderCopy(
+			renderer.cptr(),
+			texture.cptr(),
+			src.cptr(),
+			C.int(dst.X), C.int(dst.Y), C.int(dst.W), C.int(dst.H))))
+}
+
+func (renderer *Renderer) Present() {
+	C.SDL_RenderPresent(renderer.cptr())
+}
+
+func (texture *Texture) UpdateYUV(rect *Rect, yPlane []byte, yPitch int, uPlane []byte, uPitch int, vPlane []byte, vPitch int) error {
+	var yPlanePtr, uPlanePtr, vPlanePtr *byte
+	if yPlane != nil {
+		yPlanePtr = &yPlane[0]
+	}
+	if uPlane != nil {
+		uPlanePtr = &uPlane[0]
+	}
+	if vPlane != nil {
+		vPlanePtr = &vPlane[0]
+	}
+	return errorFromInt(int(
+		C.SDL_UpdateYUVTexture(
+			texture.cptr(),
+			rect.cptr(),
+			(*C.Uint8)(unsafe.Pointer(yPlanePtr)),
+			C.int(yPitch),
+			(*C.Uint8)(unsafe.Pointer(uPlanePtr)),
+			C.int(uPitch),
+			(*C.Uint8)(unsafe.Pointer(vPlanePtr)),
+			C.int(vPitch))))
 }
