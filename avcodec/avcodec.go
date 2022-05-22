@@ -42,12 +42,12 @@ func (ctx *AVCodecContext) ParametersToContext(par unsafe.Pointer) {
 	C.avcodec_parameters_to_context(ctx.cptr, (*C.struct_AVCodecParameters)(par))
 }
 
-func (ctx *AVCodecContext) Width() int {
-	return int(ctx.cptr.width)
+func (ctx *AVCodecContext) Width() int32 {
+	return int32(ctx.cptr.width)
 }
 
-func (ctx *AVCodecContext) Height() int {
-	return int(ctx.cptr.height)
+func (ctx *AVCodecContext) Height() int32 {
+	return int32(ctx.cptr.height)
 }
 
 func (ctx *AVCodecContext) PixFmt() int {

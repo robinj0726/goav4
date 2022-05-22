@@ -22,8 +22,8 @@ type SwsContext struct {
 	cptr *C.struct_SwsContext
 }
 
-func GetContext(srcW int, srcH int, srcFormat int,
-	dstW int, dstH int, dstFormat int,
+func GetContext(srcW int32, srcH int32, srcFormat int,
+	dstW int32, dstH int32, dstFormat int,
 	flags int) (*SwsContext, error) {
 
 	ret := (*C.struct_SwsContext)(C.sws_getContext((C.int)(srcW), (C.int)(srcH), (int32)(srcFormat), (C.int)(dstW), (C.int)(dstH), (int32)(dstFormat), (C.int)(flags),
@@ -37,6 +37,6 @@ func GetContext(srcW int, srcH int, srcFormat int,
 	}, nil
 }
 
-func (sws *SwsContext) Scale(srcFrame avutil.AVFrame, srcSliceY int, srcSliceH int, dstFrame avutil.AVFrame) {
+func (sws *SwsContext) Scale(srcFrame avutil.AVFrame, srcSliceY int32, srcSliceH int32, dstFrame avutil.AVFrame) {
 	C.sws_scale((*C.struct_SwsContext)(sws.cptr), (**C.uchar)(srcFrame.Data()), (*C.int)(srcFrame.LineSize()), (C.int)(srcSliceY), (C.int)(srcSliceH), (**C.uchar)(dstFrame.Data()), (*C.int)(dstFrame.LineSize()))
 }
