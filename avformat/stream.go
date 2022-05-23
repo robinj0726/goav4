@@ -15,16 +15,14 @@ int av_stream_codec_id(AVStream* stream)
 import "C"
 import (
 	"unsafe"
-
-	"github.com/robinj730/goav4/avutil"
 )
 
 type AVStream struct {
 	cptr *C.struct_AVStream
 }
 
-func (s *AVStream) CodecType() avutil.AVMediaType {
-	return avutil.AVMediaType(C.av_stream_codec_type(s.cptr))
+func (s *AVStream) CodecType() int {
+	return int(C.av_stream_codec_type(s.cptr))
 }
 
 func (s *AVStream) CodecID() int {
