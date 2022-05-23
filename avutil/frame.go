@@ -38,3 +38,11 @@ func (f *AVFrame) Data() unsafe.Pointer {
 func (f *AVFrame) LineSize() unsafe.Pointer {
 	return unsafe.Pointer(&f.cptr.linesize[0])
 }
+
+func (f *AVFrame) Plane(index int) unsafe.Pointer {
+	return unsafe.Pointer(&f.cptr.data[index])
+}
+
+func (f *AVFrame) PlaneSize(index int) int {
+	return int(f.cptr.linesize[index])
+}
