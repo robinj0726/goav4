@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	SWS_FAST_BILINEAR = C.SWS_FAST_BILINEAR
-	SWS_BILINEAR      = C.SWS_BILINEAR
-	SWS_BICUBIC       = C.SWS_BICUBIC
+	SWS_FAST_BILINEAR = 1
+	SWS_BILINEAR      = 2
+	SWS_BICUBIC       = 4
 )
 
 type SwsContext struct {
