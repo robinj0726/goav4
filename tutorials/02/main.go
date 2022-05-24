@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"unsafe"
 
@@ -57,8 +58,8 @@ func main() {
 
 	avutil.ImageAlloc(pFrameYUV, pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), 16)
 
-	// fmt.Println(pCodecCtx)
-	sws_ctx, _ := swscale.GetContext(pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), pCodecCtx.Width(), pCodecCtx.Height(), int(avutil.AV_PIX_FMT_RGB24), swscale.SWS_BILINEAR)
+	fmt.Println(pCodecCtx)
+	sws_ctx, _ := swscale.GetContext(pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), pCodecCtx.Width(), pCodecCtx.Height(), int(avutil.AV_PIX_FMT_YUV420P), swscale.SWS_BILINEAR)
 
 	pkt := avcodec.PacketAlloc()
 	defer pkt.Free()
@@ -82,24 +83,28 @@ func main() {
 	}
 	defer texture.Destroy()
 
+	yPlaneSz := pCodecCtx.Width() * pCodecCtx.Height() * 3
 	yPlane := *(*[]uint8)(unsafe.Pointer(&reflect.SliceHeader{
 		Data: uintptr(pFrameYUV.Plane(0)),
-		Len:  pFrameYUV.PlaneSize(0),
-		Cap:  pFrameYUV.PlaneSize(0),
+		Len:  int(yPlaneSz),
+		Cap:  int(yPlaneSz),
 	}))
 
+	uvPlaneSz := yPlaneSz / 4
 	uPlane := *(*[]uint8)(unsafe.Pointer(&reflect.SliceHeader{
 		Data: uintptr(pFrameYUV.Plane(1)),
-		Len:  pFrameYUV.PlaneSize(1),
-		Cap:  pFrameYUV.PlaneSize(1),
+		Len:  int(uvPlaneSz),
+		Cap:  int(uvPlaneSz),
 	}))
 
 	vPlane := *(*[]uint8)(unsafe.Pointer(&reflect.SliceHeader{
 		Data: uintptr(pFrameYUV.Plane(2)),
-		Len:  pFrameYUV.PlaneSize(2),
-		Cap:  pFrameYUV.PlaneSize(2),
+		Len:  int(uvPlaneSz),
+		Cap:  int(uvPlaneSz),
 	}))
 
+	yPitch := pCodecCtx.Width()
+	uvPitch := yPitch / 2
 	n := 0
 	for {
 		err := pFormatCtx.ReadFrame(pkt.PacketRef())
@@ -118,8 +123,8 @@ func main() {
 				panic(err)
 			}
 
-			sws_ctx.Scale(*pFrame, 0, pCodecCtx.Height(), *pFrameYUV)
-			texture.UpdateYUV(nil, yPlane, len(yPlane), uPlane, len(uPlane), vPlane, len(vPlane))
+			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameYUV)
+			texture.UpdateYUV(nil, yPlane, int(yPitch), uPlane, int(uvPitch), vPlane, int(uvPitch))
 
 			render.Clear()
 			render.Copy(texture, nil, nil)
