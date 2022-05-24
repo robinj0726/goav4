@@ -37,6 +37,6 @@ func GetContext(srcW int32, srcH int32, srcFormat int,
 	}, nil
 }
 
-func (sws *SwsContext) Scale(srcFrame avutil.AVFrame, srcSliceY int32, srcSliceH int32, dstFrame avutil.AVFrame) {
+func (sws *SwsContext) Scale(srcFrame *avutil.AVFrame, srcSliceY int32, srcSliceH int32, dstFrame *avutil.AVFrame) {
 	C.sws_scale((*C.struct_SwsContext)(sws.cptr), (**C.uchar)(srcFrame.Data()), (*C.int)(srcFrame.LineSize()), (C.int)(srcSliceY), (C.int)(srcSliceH), (**C.uchar)(dstFrame.Data()), (*C.int)(dstFrame.LineSize()))
 }
