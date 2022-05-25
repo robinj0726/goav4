@@ -1,5 +1,29 @@
 package main
 
+/*
+#include <libavutil/frame.h>
+
+static void SaveFrame(AVFrame *pFrame, int width, int height, int idx) {
+  FILE *pFile;
+  char szFilename[32];
+  int  y;
+
+  // Open file
+  sprintf(szFilename, "%d", idx);
+  pFile=fopen(szFilename, "wb");
+  if(pFile==NULL)
+    return;
+
+  // Write pixel data
+  for(y=0; y<height; y++) {
+    fwrite(pFrame->data[idx]+y*pFrame->linesize[idx], 1, pFrame->linesize[idx], pFile);
+  }
+
+  // Close file
+  fclose(pFile);
+}
+*/
+import "C"
 import (
 	"fmt"
 	"reflect"
@@ -15,7 +39,7 @@ import (
 func main() {
 	infile := "../sample.mp4"
 
-	err := sdl2.Init(sdl2.INIT_VIDEO | sdl2.INIT_AUDIO | sdl2.INIT_TIMER)
+	err := sdl2.Init(sdl2.INIT_VIDEO)
 	if err != nil {
 		panic(err)
 	}
@@ -56,9 +80,9 @@ func main() {
 	pFrameYUV := avutil.FrameAlloc()
 	defer pFrameYUV.Free()
 
-	avutil.ImageAlloc(pFrameYUV, pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), 16)
+	avutil.ImageAlloc(pFrameYUV, pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), 8)
 
-	fmt.Println(pCodecCtx)
+	// fmt.Println(pCodecCtx)
 	sws_ctx, _ := swscale.GetContext(pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), pCodecCtx.Width(), pCodecCtx.Height(), int(avutil.AV_PIX_FMT_YUV420P), swscale.SWS_BILINEAR)
 
 	pkt := avcodec.PacketAlloc()
@@ -83,7 +107,7 @@ func main() {
 	}
 	defer texture.Destroy()
 
-	yPlaneSz := pCodecCtx.Width() * pCodecCtx.Height() * 3
+	yPlaneSz := pCodecCtx.Width() * pCodecCtx.Height()
 	yPlane := *(*[]uint8)(unsafe.Pointer(&reflect.SliceHeader{
 		Data: uintptr(pFrameYUV.Plane(0)),
 		Len:  int(yPlaneSz),
@@ -105,7 +129,6 @@ func main() {
 
 	yPitch := pCodecCtx.Width()
 	uvPitch := yPitch / 2
-	n := 0
 	for {
 		err := pFormatCtx.ReadFrame(pkt.PacketRef())
 		if err != nil {
@@ -123,13 +146,19 @@ func main() {
 				panic(err)
 			}
 
+			fmt.Println(pFrame)
+
+			C.SaveFrame((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(0))
+			C.SaveFrame((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()/2), (C.int)(1))
+			C.SaveFrame((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()/2), (C.int)(2))
+			break
+
 			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameYUV)
 			texture.UpdateYUV(nil, yPlane, int(yPitch), uPlane, int(uvPitch), vPlane, int(uvPitch))
 
 			render.Clear()
 			render.Copy(texture, nil, nil)
 			render.Present()
-			n += 1
 		}
 	}
 }
