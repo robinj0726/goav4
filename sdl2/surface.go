@@ -26,7 +26,7 @@ func (surface *Surface) cptr() *C.SDL_Surface {
 }
 
 func (surface *Surface) FillRect(rect *Rect, color uint32) error {
-	if C.SDL_FillRect(surface.cptr(), rect.cptr(), C.Uint32(color)) != 0 {
+	if C.SDL_FillRect(surface.cptr(), (*C.SDL_Rect)(unsafe.Pointer(rect)), C.Uint32(color)) != 0 {
 		return GetError()
 	}
 	return nil

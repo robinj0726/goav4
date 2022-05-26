@@ -43,7 +43,7 @@ func (texture *Texture) UpdateYUV(rect *Rect, yPlanePtr *byte, yPitch int, uPlan
 	return errorFromInt(int(
 		C.SDL_UpdateYUVTexture(
 			texture.cptr(),
-			rect.cptr(),
+			(*C.SDL_Rect)(unsafe.Pointer(rect)),
 			(*C.Uint8)(unsafe.Pointer(yPlanePtr)),
 			C.int(yPitch),
 			(*C.Uint8)(unsafe.Pointer(uPlanePtr)),
