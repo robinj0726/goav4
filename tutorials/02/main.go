@@ -51,6 +51,8 @@ func main() {
 
 	pFormatCtx.FindStreamInfo()
 
+	pFormatCtx.DumpFormat()
+
 	var pCodec *avcodec.AVCodec
 	var pCodecCtx *avcodec.AVCodecContext
 	videoStream := -1
@@ -81,7 +83,7 @@ func main() {
 	pFrameYUV := avutil.FrameAlloc()
 	defer pFrameYUV.Free()
 
-	avutil.ImageAlloc(pFrameYUV, pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), 8)
+	avutil.ImageAlloc(pFrameYUV, pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), 16)
 
 	// fmt.Println(pCodecCtx)
 	sws_ctx, _ := swscale.GetContext(pCodecCtx.Width(), pCodecCtx.Height(), pCodecCtx.PixFmt(), pCodecCtx.Width(), pCodecCtx.Height(), int(avutil.AV_PIX_FMT_YUV420P), swscale.SWS_BILINEAR)
@@ -154,8 +156,16 @@ func main() {
 			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameYUV)
 			texture.UpdateYUV(nil, yPlane, int(yPitch), uPlane, int(uvPitch), vPlane, int(uvPitch))
 
-			render.Clear()
-			render.Copy(texture, nil, nil)
+			err = render.Clear()
+			if err != nil {
+				panic(err)
+			}
+
+			err = render.Copy(texture, nil, nil)
+			if err != nil {
+				panic(err)
+			}
+
 			render.Present()
 
 			n += 1
