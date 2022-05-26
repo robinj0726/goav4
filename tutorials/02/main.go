@@ -27,8 +27,7 @@ static void SaveFrameToYUV(AVFrame *pFrame, int w, int h, int iFrame) {
 */
 import "C"
 import (
-	"reflect"
-	"unsafe"
+	"time"
 
 	"github.com/robinj730/goav4/avcodec"
 	"github.com/robinj730/goav4/avformat"
@@ -110,26 +109,6 @@ func main() {
 	}
 	defer texture.Destroy()
 
-	yPlaneSz := pCodecCtx.Width() * pCodecCtx.Height()
-	yPlane := *(*[]uint8)(unsafe.Pointer(&reflect.SliceHeader{
-		Data: uintptr(pFrameYUV.Plane(0)),
-		Len:  int(yPlaneSz),
-		Cap:  int(yPlaneSz),
-	}))
-
-	uvPlaneSz := yPlaneSz / 4
-	uPlane := *(*[]uint8)(unsafe.Pointer(&reflect.SliceHeader{
-		Data: uintptr(pFrameYUV.Plane(1)),
-		Len:  int(uvPlaneSz),
-		Cap:  int(uvPlaneSz),
-	}))
-
-	vPlane := *(*[]uint8)(unsafe.Pointer(&reflect.SliceHeader{
-		Data: uintptr(pFrameYUV.Plane(2)),
-		Len:  int(uvPlaneSz),
-		Cap:  int(uvPlaneSz),
-	}))
-
 	yPitch := pCodecCtx.Width()
 	uvPitch := yPitch / 2
 
@@ -154,7 +133,8 @@ func main() {
 			// C.SaveFrameToYUV((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(n))
 
 			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameYUV)
-			texture.UpdateYUV(nil, yPlane, int(yPitch), uPlane, int(uvPitch), vPlane, int(uvPitch))
+
+			texture.UpdateYUV(nil, (*byte)(pFrame.Plane(0)), int(yPitch), (*byte)(pFrame.Plane(1)), int(uvPitch), (*byte)(pFrame.Plane(2)), int(uvPitch))
 
 			err = render.Clear()
 			if err != nil {
@@ -168,6 +148,7 @@ func main() {
 
 			render.Present()
 
+			time.Sleep(30 * time.Millisecond)
 			n += 1
 		}
 	}
