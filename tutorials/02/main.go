@@ -3,20 +3,22 @@ package main
 /*
 #include <libavutil/frame.h>
 
-static void SaveFrame(AVFrame *pFrame, int width, int height, int idx) {
+static void SaveFrameToYUV(AVFrame *pFrame, int w, int h, int iFrame) {
   FILE *pFile;
   char szFilename[32];
-  int  y;
+  int height[3] = {h, h/2, h/2};
 
   // Open file
-  sprintf(szFilename, "%d", idx);
+  sprintf(szFilename, "frame%d.yuv", iFrame);
   pFile=fopen(szFilename, "wb");
   if(pFile==NULL)
     return;
 
   // Write pixel data
-  for(y=0; y<height; y++) {
-    fwrite(pFrame->data[idx]+y*pFrame->linesize[idx], 1, pFrame->linesize[idx], pFile);
+  for (int i=0; i<3; i++) {
+	for(int y=0; y<height[i]; y++) {
+		fwrite(pFrame->data[i]+y*pFrame->linesize[i], 1, pFrame->linesize[i], pFile);
+	}
   }
 
   // Close file
@@ -148,9 +150,7 @@ func main() {
 
 			fmt.Println(pFrame)
 
-			C.SaveFrame((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(0))
-			C.SaveFrame((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()/2), (C.int)(1))
-			C.SaveFrame((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()/2), (C.int)(2))
+			C.SaveFrameToYUV((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(0))
 			break
 
 			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameYUV)
