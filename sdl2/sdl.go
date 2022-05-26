@@ -5,6 +5,7 @@ package sdl2
 #include <SDL.h>
 */
 import "C"
+import "runtime"
 
 const (
 	INIT_TIMER          = C.SDL_INIT_TIMER          // timer subsystem
@@ -18,6 +19,11 @@ const (
 	INIT_SENSOR         = C.SDL_INIT_SENSOR         // sensor subsystem
 	INIT_EVERYTHING     = C.SDL_INIT_EVERYTHING     // all of the above subsystems
 )
+
+func init() {
+	// Make sure the main goroutine is bound to the main thread.
+	runtime.LockOSThread()
+}
 
 func Init(flags uint32) error {
 	if C.SDL_Init(C.Uint32(flags)) != 0 {
