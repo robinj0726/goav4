@@ -101,17 +101,7 @@ func (renderer *Renderer) Present() {
 	C.SDL_RenderPresent(renderer.cptr())
 }
 
-func (texture *Texture) UpdateYUV(rect *Rect, yPlane []byte, yPitch int, uPlane []byte, uPitch int, vPlane []byte, vPitch int) error {
-	var yPlanePtr, uPlanePtr, vPlanePtr *byte
-	if yPlane != nil {
-		yPlanePtr = &yPlane[0]
-	}
-	if uPlane != nil {
-		uPlanePtr = &uPlane[0]
-	}
-	if vPlane != nil {
-		vPlanePtr = &vPlane[0]
-	}
+func (texture *Texture) UpdateYUV(rect *Rect, yPlanePtr *byte, yPitch int, uPlanePtr *byte, uPitch int, vPlanePtr *byte, vPitch int) error {
 	return errorFromInt(int(
 		C.SDL_UpdateYUVTexture(
 			texture.cptr(),
