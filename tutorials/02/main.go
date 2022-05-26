@@ -27,7 +27,6 @@ static void SaveFrameToYUV(AVFrame *pFrame, int w, int h, int iFrame) {
 */
 import "C"
 import (
-	"fmt"
 	"reflect"
 	"unsafe"
 
@@ -131,6 +130,8 @@ func main() {
 
 	yPitch := pCodecCtx.Width()
 	uvPitch := yPitch / 2
+
+	n := 0
 	for {
 		err := pFormatCtx.ReadFrame(pkt.PacketRef())
 		if err != nil {
@@ -148,10 +149,7 @@ func main() {
 				panic(err)
 			}
 
-			fmt.Println(pFrame)
-
-			C.SaveFrameToYUV((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(0))
-			break
+			// C.SaveFrameToYUV((*C.struct_AVFrame)(pFrame.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(n))
 
 			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameYUV)
 			texture.UpdateYUV(nil, yPlane, int(yPitch), uPlane, int(uvPitch), vPlane, int(uvPitch))
@@ -159,6 +157,8 @@ func main() {
 			render.Clear()
 			render.Copy(texture, nil, nil)
 			render.Present()
+
+			n += 1
 		}
 	}
 }
