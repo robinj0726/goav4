@@ -13,6 +13,13 @@ import "C"
 import "unsafe"
 
 const (
+	RENDERER_SOFTWARE      = C.SDL_RENDERER_SOFTWARE      // the renderer is a software fallback
+	RENDERER_ACCELERATED   = C.SDL_RENDERER_ACCELERATED   // the renderer uses hardware acceleration
+	RENDERER_PRESENTVSYNC  = C.SDL_RENDERER_PRESENTVSYNC  // present is synchronized with the refresh rate
+	RENDERER_TARGETTEXTURE = C.SDL_RENDERER_TARGETTEXTURE // the renderer supports rendering to texture
+)
+
+const (
 	TEXTUREACCESS_STATIC    = C.SDL_TEXTUREACCESS_STATIC    // changes rarely, not lockable
 	TEXTUREACCESS_STREAMING = C.SDL_TEXTUREACCESS_STREAMING // changes frequently, lockable
 	TEXTUREACCESS_TARGET    = C.SDL_TEXTUREACCESS_TARGET    // can be used as a render target
@@ -68,4 +75,8 @@ func (renderer *Renderer) Copy(texture *Texture, src, dst *Rect) error {
 
 func (renderer *Renderer) Present() {
 	C.SDL_RenderPresent(renderer.cptr())
+}
+
+func (Renderer *Renderer) SetDrawColor(r, g, b, a int) {
+	C.SDL_SetRenderDrawColor(Renderer.cptr(), C.Uint8(r), C.Uint8(g), C.Uint8(b), C.Uint8(a))
 }
