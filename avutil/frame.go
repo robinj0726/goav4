@@ -31,18 +31,18 @@ func (f *AVFrame) FrameRef() unsafe.Pointer {
 	return unsafe.Pointer(f.cptr)
 }
 
-func (f *AVFrame) Data() unsafe.Pointer {
+func (f *AVFrame) DataPtrPtr() unsafe.Pointer {
 	return unsafe.Pointer(&f.cptr.data[0])
 }
 
-func (f *AVFrame) LineSize() unsafe.Pointer {
+func (f *AVFrame) LineSizePtr() unsafe.Pointer {
 	return unsafe.Pointer(&f.cptr.linesize[0])
 }
 
-func (f *AVFrame) Plane(index int) unsafe.Pointer {
+func (f *AVFrame) DataPtr(index int) unsafe.Pointer {
 	return unsafe.Pointer(&f.cptr.data[index])
 }
 
-func (f *AVFrame) PlaneSize(index int) int {
+func (f *AVFrame) LineSize(index int) int {
 	return int(f.cptr.linesize[index])
 }
