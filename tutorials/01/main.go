@@ -85,7 +85,7 @@ func main() {
 				panic(err)
 			}
 
-			sws_ctx.Scale(*pFrame, 0, pCodecCtx.Height(), *pFrameRGB)
+			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameRGB)
 			C.SaveFrame((*C.struct_AVFrame)(pFrameRGB.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(n))
 			n += 1
 		}
