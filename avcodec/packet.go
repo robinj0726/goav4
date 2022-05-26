@@ -27,7 +27,7 @@ func (pkt *AVPacket) Free() {
 	C.av_packet_free(&pkt.cptr)
 }
 
-func (pkt *AVPacket) PacketRef() unsafe.Pointer {
+func (pkt *AVPacket) PacketPtr() unsafe.Pointer {
 	return unsafe.Pointer(pkt.cptr)
 }
 

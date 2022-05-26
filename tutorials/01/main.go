@@ -69,24 +69,24 @@ func main() {
 
 	n := 0
 	for {
-		err := pFormatCtx.ReadFrame(pkt.PacketRef())
+		err := pFormatCtx.ReadFrame(pkt.PacketPtr())
 		if err != nil {
 			break
 		}
 
 		if pkt.StreamIndex() == videoStream {
-			err := pCodecCtx.SendPacket(pkt.PacketRef())
+			err := pCodecCtx.SendPacket(pkt.PacketPtr())
 			if err != nil {
 				panic(err)
 			}
 
-			err = pCodecCtx.ReceiveFrame(pFrame.FrameRef())
+			err = pCodecCtx.ReceiveFrame(pFrame.FramePtr())
 			if err != nil {
 				panic(err)
 			}
 
 			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameRGB)
-			C.SaveFrame((*C.struct_AVFrame)(pFrameRGB.FrameRef()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(n))
+			C.SaveFrame((*C.struct_AVFrame)(pFrameRGB.FramePtr()), (C.int)(pCodecCtx.Width()), (C.int)(pCodecCtx.Height()), (C.int)(n))
 			n += 1
 		}
 

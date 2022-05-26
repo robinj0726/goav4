@@ -27,7 +27,7 @@ func (f *AVFrame) Free() {
 	C.av_frame_free(&f.cptr)
 }
 
-func (f *AVFrame) FrameRef() unsafe.Pointer {
+func (f *AVFrame) FramePtr() unsafe.Pointer {
 	return unsafe.Pointer(f.cptr)
 }
 

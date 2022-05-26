@@ -109,23 +109,20 @@ func main() {
 	}
 	defer texture.Destroy()
 
-	yPitch := pCodecCtx.Width()
-	uvPitch := yPitch / 2
-
 	n := 0
 	for {
-		err := pFormatCtx.ReadFrame(pkt.PacketRef())
+		err := pFormatCtx.ReadFrame(pkt.PacketPtr())
 		if err != nil {
 			break
 		}
 
 		if pkt.StreamIndex() == videoStream {
-			err := pCodecCtx.SendPacket(pkt.PacketRef())
+			err := pCodecCtx.SendPacket(pkt.PacketPtr())
 			if err != nil {
 				panic(err)
 			}
 
-			err = pCodecCtx.ReceiveFrame(pFrame.FrameRef())
+			err = pCodecCtx.ReceiveFrame(pFrame.FramePtr())
 			if err != nil {
 				panic(err)
 			}
@@ -134,7 +131,7 @@ func main() {
 
 			sws_ctx.Scale(pFrame, 0, pCodecCtx.Height(), pFrameYUV)
 
-			texture.UpdateYUV(nil, (*byte)(pFrame.Plane(0)), int(yPitch), (*byte)(pFrame.Plane(1)), int(uvPitch), (*byte)(pFrame.Plane(2)), int(uvPitch))
+			texture.UpdateYUV(nil, (*byte)(pFrame.DataPtr(0)), pFrame.LineSize(0), (*byte)(pFrame.DataPtr(1)), pFrame.LineSize(0), (*byte)(pFrame.DataPtr(2)), pFrame.LineSize(2))
 
 			err = render.Clear()
 			if err != nil {
