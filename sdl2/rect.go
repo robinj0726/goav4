@@ -11,3 +11,8 @@ type Rect struct {
 	W int32 // the width of the rectangle
 	H int32 // the height of the rectangle
 }
+
+type Point struct {
+	X int32 // the x coordinate of the point
+	Y int32 // the y coordinate of the point
+}

@@ -6,6 +6,8 @@ package sdl2
 import "C"
 import "unsafe"
 
+type RendererFlip uint32
+
 const (
 	RENDERER_SOFTWARE      = C.SDL_RENDERER_SOFTWARE      // the renderer is a software fallback
 	RENDERER_ACCELERATED   = C.SDL_RENDERER_ACCELERATED   // the renderer uses hardware acceleration
@@ -19,7 +21,17 @@ const (
 	TEXTUREACCESS_TARGET    = C.SDL_TEXTUREACCESS_TARGET    // can be used as a render target
 )
 
+const (
+	FLIP_NONE       RendererFlip = C.SDL_FLIP_NONE       // do not flip
+	FLIP_HORIZONTAL              = C.SDL_FLIP_HORIZONTAL // flip horizontally
+	FLIP_VERTICAL                = C.SDL_FLIP_VERTICAL   // flip vertically
+)
+
 type Renderer C.SDL_Renderer
+
+func (flip RendererFlip) c() C.SDL_RendererFlip {
+	return C.SDL_RendererFlip(flip)
+}
 
 func (r *Renderer) cptr() *C.SDL_Renderer {
 	return (*C.SDL_Renderer)(unsafe.Pointer(r))
@@ -57,6 +69,18 @@ func (renderer *Renderer) Copy(texture *Texture, src, dst *Rect) error {
 			texture.cptr(),
 			(*C.SDL_Rect)(unsafe.Pointer(src)),
 			(*C.SDL_Rect)(unsafe.Pointer(dst)))))
+}
+
+func (renderer *Renderer) CopyEx(texture *Texture, src, dst *Rect, angle float32, center *Point, flip RendererFlip) error {
+	return errorFromInt(int(
+		C.SDL_RenderCopyEx(
+			renderer.cptr(),
+			texture.cptr(),
+			(*C.SDL_Rect)(unsafe.Pointer(src)),
+			(*C.SDL_Rect)(unsafe.Pointer(dst)),
+			C.double(angle),
+			(*C.SDL_Point)(unsafe.Pointer(center)),
+			flip.c())))
 }
 
 func (renderer *Renderer) Present() {
