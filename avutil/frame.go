@@ -46,3 +46,7 @@ func (f *AVFrame) DataPtr(index int) unsafe.Pointer {
 func (f *AVFrame) LineSize(index int) int {
 	return int(f.cptr.linesize[index])
 }
+
+func (f *AVFrame) Samples() int {
+	return int(f.cptr.nb_samples)
+}

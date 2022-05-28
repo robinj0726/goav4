@@ -34,3 +34,9 @@ func (pkt *AVPacket) PacketPtr() unsafe.Pointer {
 func (pkt *AVPacket) StreamIndex() int {
 	return int(pkt.cptr.stream_index)
 }
+
+func (pkt *AVPacket) PacketClone() *AVPacket {
+	return &AVPacket{
+		cptr: C.av_packet_clone(pkt.cptr),
+	}
+}

@@ -54,6 +54,22 @@ func (ctx *AVCodecContext) PixFmt() int {
 	return int(ctx.cptr.pix_fmt)
 }
 
+func (ctx *AVCodecContext) SampleRate() int {
+	return int(ctx.cptr.sample_rate)
+}
+
+func (ctx *AVCodecContext) Channels() int {
+	return int(ctx.cptr.channels)
+}
+
+func (ctx *AVCodecContext) SampleFmt() int {
+	return int(ctx.cptr.sample_fmt)
+}
+
+func (ctx *AVCodecContext) CPtr() unsafe.Pointer {
+	return unsafe.Pointer(ctx.cptr)
+}
+
 func (ctx *AVCodecContext) SendPacket(pktref unsafe.Pointer) error {
 	ret := C.avcodec_send_packet(ctx.cptr, (*C.struct_AVPacket)(pktref))
 	if ret < 0 {
@@ -70,4 +86,10 @@ func (ctx *AVCodecContext) ReceiveFrame(frameref unsafe.Pointer) error {
 	}
 
 	return nil
+}
+
+func NewContextWithCPtr(cptr unsafe.Pointer) *AVCodecContext {
+	return &AVCodecContext{
+		cptr: (*C.struct_AVCodecContext)(cptr),
+	}
 }
